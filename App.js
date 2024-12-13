@@ -11,6 +11,14 @@ app.use(logger("tiny"));
 //Routes
 const indexRouter = require("./routes/index.route");
 app.use("/", indexRouter);
+
+//Error handling middleware
+const ErrorHandler = require("./utils/ErrorHandler");
+const { generatedErrors } = require("./middleware/error.middleware");
+app.all('*', function(req,res,next){
+    next(new ErrorHandler(`Requested URL Not Found: ${req.url}`,404));
+})
+app.use(generatedErrors)
 app.listen(process.env.PORT, () => {
   console.log(`Server is running on port ${process.env.PORT}`);
 });
