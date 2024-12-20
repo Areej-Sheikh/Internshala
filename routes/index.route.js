@@ -1,7 +1,11 @@
 const express = require("express");
-const { Homepage } = require("../controllers/index.controller");
 const router = express.Router();
 
-router.get("/", Homepage);
+const { homepage,studentSignup,studentLogout,studentLogin } = require("../controllers/index.controller");
+
+router.get("/", homepage);
+router.post('/student/signup', studentSignup)
+router.post('/student/login', studentLogin)
+router.get('/student/logout', studentLogout)
 
 module.exports = router;

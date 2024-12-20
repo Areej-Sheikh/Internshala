@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
 const studentModel = new mongoose.Schema(
   {
     email: {
@@ -15,10 +16,19 @@ const studentModel = new mongoose.Schema(
       required: [true, "Password is required"],
       select: false,
       minlength: [3, "Password should be at least 3 characters long"],
-      maxLength:[15,"Password should be at most 15 characters long"],
+      maxLength: [15, "Password should be at most 15 characters long"],
     },
   },
   { timestamps: true }
 );
-
+studentModel.pre("save", function () {
+  if (!this.isModified("password")) {
+    return;
+  }
+  let salt = bcrypt.genSaltSync(10);
+  this.password = bcrypt.hashSync(this.password, salt);
+});
+studentModel.methods.comparePassword = function(password) {
+  return bcrypt.compareSync(password, this.password);
+}
 module.exports = mongoose.model("Student", studentModel);
