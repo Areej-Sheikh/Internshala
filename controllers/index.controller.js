@@ -1,15 +1,15 @@
 const { catchAsyncErrors } = require("../middleware/catchAsyncErrors");
 const Student = require("../models/student.model");
 const { ErrorHandler } = require("../utils/ErrorHandler");
+const { sendToken } = require("../utils/sendToken");
 
 exports.homepage = catchAsyncErrors(async (req, res) => {
   res.json({ message: "Homepage" });
 });
 exports.studentSignup = catchAsyncErrors(async (req, res, next) => {
-  console.log(req.body);
   try {
     const student = await new Student(req.body).save();
-    console.log(student);
+    sendToken(student, 201, res);
     res.status(201).json({ message: "Student signup successful", student });
   } catch (error) {
     console.error("Error during signup:", error);
@@ -29,10 +29,19 @@ exports.studentLogin = catchAsyncErrors(async (req, res, next) => {
     if (!isMatch) {
       return next(new ErrorHandler("Invalid credentials", 401));
     }
+    sendToken(student, 201, res);
     res.json({ message: "Student login successful", student });
   } catch (error) {
     next(error);
   }
 });
 
-exports.studentLogout = catchAsyncErrors(async (req, res) => {});
+exports.studentLogout = catchAsyncErrors(async (req, res,next) => {
+
+  res.clearCookie("token");
+  res.json({ message: "Student logout successful" });
+});
+exports.currentUser = catchAsyncErrors(async (req, res,next) => {
+  const student = await student.findById(req.id).exec();
+  res.json({student})
+});
